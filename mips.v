@@ -21,7 +21,8 @@ integer out;
  wire [31:0] case1in;
  wire [31:0] muxpcout;
  wire [2:0] ctrlout;
- 
+ wire [1:0] faout;
+ wire [1:0] fbout;
  // declare the bypass signals 
  wire takebranch, stall, bypassAfromMEM, bypassAfromALUinWB,bypassBfromMEM, bypassBfromALUinWB, bypassAfromLWinWB, bypassBfromLWinWB; 
 
@@ -33,27 +34,7 @@ integer out;
  assign EXMEMop = EXMEMIR[31:26]; 
  assign MEMWBop = MEMWBIR[31:26];
  assign IDEXop = IDEXIR[31:26];
- // The bypass to input A from the MEM stage for an ALU operation
- assign bypassAfromMEM = (IDEXrs == EXMEMrd) & (IDEXrs!=0) & ((EXMEMop==ALUop) | (EXMEMop==ADD_IMM)); // yes, bypass
- // The bypass to input B from the MEM stage for an ALU operation
- assign bypassBfromMEM = (IDEXrt == EXMEMrd)&(IDEXrt!=0) & ((EXMEMop==ALUop) | (EXMEMop==ADD_IMM)); // yes, bypass
- // The bypass to input A from the WB stage for an ALU operation
- assign bypassAfromALUinWB =( IDEXrs == MEMWBrd) & (IDEXrs!=0) & ((MEMWBop==ALUop) | (MEMWBop==ADD_IMM)); 
- // The bypass to input B from the WB stage for an ALU operation
- assign bypassBfromALUinWB = (IDEXrt == MEMWBrd) & (IDEXrt!=0) & ((MEMWBop==ALUop) | (MEMWBop==ADD_IMM)); 
- // The bypass to input A from the WB stage for an LW operation
- assign bypassAfromLWinWB =( IDEXrs == MEMWBIR[20:16]) & (IDEXrs!=0) & (MEMWBop==LW); 
- // The bypass to input B from the WB stage for an LW operation
- assign bypassBfromLWinWB = (IDEXrt == MEMWBIR[20:16]) & (IDEXrt!=0) & (MEMWBop==LW); 
  
- // The A input to the ALU is bypassed from MEM if there is a bypass there, 
- // Otherwise from WB if there is a bypass there, and otherwise comes from the IDEX register
- assign Ain = bypassAfromMEM? EXMEMALUOut :
-                              (bypassAfromALUinWB | bypassAfromLWinWB)? MEMWBValue : IDEXA;
- // The B input to the ALU is bypassed from MEM if there is a bypass there, 
- // Otherwise from WB if there is a bypass there, and otherwise comes from the IDEX register
- assign Bin = bypassBfromMEM? EXMEMALUOut :
-                              (bypassBfromALUinWB | bypassBfromLWinWB)? MEMWBValue: IDEXB;
 										
 // The signal for detecting a stall based on the use of a result from LW
 assign stall = (MEMWBIR[31:26]==LW) && // source instruction is a load
@@ -67,12 +48,14 @@ assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2);
 assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
 
 //gia thn ALU
+forwardUnit myforwardUnit(IDEXrs,IDEXrt,EXMEMrd,MEMWBrd,faout,fbout);
+
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
-muxInA myinA(IDEXop,IDEXIR[5:0],FA);
-muxInB myinB(IDEXop,IDEXIR[5:0],FB);
+muxInA myinA(IDEXop,IDEXIR[5:0],faout, FA);
+muxInB myinB(IDEXop,IDEXIR[5:0],fbout, FB);
 
 ALU myalu(clock,ctrlout,FA,FB,ALUOut);
-muxPC  mypcmux( IDEXIR[25:0], IDEXIR[25:0], Ain<<2, PC, IDEXop, muxpcout);
+muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //gia to memstage 
 DMem Memory(clock, EXMEMop, EXMEMALUOut,EXMEMB,MEMStageOut);
@@ -83,7 +66,7 @@ RegistersFile myregs(clock, MEMWBValue,regOut1, regOut2, MEMWBOut,IFIDIR[25:21],
 mux2x1_5bit wbmux(MEMWBrd, MEMWBIR[15:11], MEMWBOut,MEMWBop);
  
 initial begin 
-    $readmemh("imem.v", IMemory); 
+    $readmemh("imem2.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -109,8 +92,10 @@ always @ (posedge clock) begin
      IDEXIR <= IFIDIR; //pass along IR
      if (IDEXop==Jop) begin
      	IFIDIR <=noop;
+        IDEXIR <=noop;
      end else if (IDEXop==JALop) begin
      	IFIDIR <=noop;
+        IDEXIR <=noop;
      end else if (IDEXop==ALUop) begin
         case (IDEXIR[5:0]) 
            8:  begin 
@@ -121,7 +106,7 @@ always @ (posedge clock) begin
      end 
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
-	 EXMEMB <= IDEXB; //pass along the IR & B register
+	 EXMEMB  <= IDEXB; //pass along the IR & B register
    end else begin
      EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
    end
@@ -138,7 +123,7 @@ always @ (posedge clock) begin
 end
 
 //Write Back Stage
-always @ (posedge clock) begin 
+always @(posedge clock) begin 
     MEMWBIR <= EXMEMIR; //pass along IR
 end
  
