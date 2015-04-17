@@ -13,7 +13,10 @@ end
 
 
 always @ (posedge clock) begin
-    Regs[pos] <= writevalue; 
+    if(pos<5'b11111) begin 
+        $display("Write at ",pos," value: ", writevalue);
+        Regs[pos] <= writevalue; 
+    end
 end
 
 endmodule

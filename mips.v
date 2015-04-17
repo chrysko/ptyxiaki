@@ -83,7 +83,7 @@ RegistersFile myregs(clock, MEMWBValue,regOut1, regOut2, MEMWBOut,IFIDIR[25:21],
 mux2x1_5bit wbmux(MEMWBrd, MEMWBIR[15:11], MEMWBOut,MEMWBop);
  
 initial begin 
-    $readmemh("imem.v", IMemory); 
+    $readmemh("imem2.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -93,24 +93,27 @@ initial begin
  
 always @ (posedge clock) begin 
   if (~stall) begin // the ? rst three pipeline stages stall if there is a load hazard
-     
+     $display("PC: ",PC);
      if (~takebranch) begin // ? rst instruction in the pipeline is being fetched normally
          IFIDIR <= IMemory[PC>>2];
          PC <= muxpcout; //PC + 4;
      end else begin // a taken branch is in ID; instruction in IF is wrong; insert a no-op and reset the PC
          IFIDIR <= noop; 
-         PC <= PC + 4 + ({{16{IFIDIR[15]}}, IFIDIR[15:0]}<<2); 
+         //$display("xxxxxxxtest: ",PC, "xxx: ",PC  + ({{16{IFIDIR[15]}}, IFIDIR[15:0]}<<2), " aaa ", IMemory[10]);
+         PC <= PC  + ({{16{IFIDIR[15]}}, IFIDIR[15:0]}<<2); 
      end 
      // second instruction is in register fetch 
 	 IDEXA <= regOut1;
 	 IDEXB <= regOut2;
-     
+	 
 	  // third instruction is doing address calculation or ALU operation
      IDEXIR <= IFIDIR; //pass along IR
      if (IDEXop==Jop) begin
      	IFIDIR <=noop;
+        IDEXIR <=noop;
      end else if (IDEXop==JALop) begin
      	IFIDIR <=noop;
+        IDEXIR <=noop;
      end else if (IDEXop==ALUop) begin
         case (IDEXIR[5:0]) 
            8:  begin 
@@ -121,6 +124,7 @@ always @ (posedge clock) begin
      end 
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
+     //$display("***test: ",IFIDIR[25:21],IFIDIR[20:16],"  ", myregs.Regs[IFIDIR[20:16]]);
 	 EXMEMB <= IDEXB; //pass along the IR & B register
    end else begin
      EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
