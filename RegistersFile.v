@@ -2,12 +2,16 @@ module RegistersFile(input clock, input [31:0]writevalue, output [31:0]readvalue
 
 reg [31:0]Regs[0:31];
 reg [5:0] i;
-assign readvalue1 = (pos1 == 5'b0)? 32'h0: Regs[pos1];
-assign readvalue2 = (pos2 == 5'b0)? 32'h0: Regs[pos2];
+assign readvalue1 = (pos1 == 5'b0)? 32'h0: 
+                    (pos1 == pos) ? writevalue : Regs[pos1];
+assign readvalue2 = (pos2 == 5'b0)? 32'h0: 
+                    (pos2 == pos) ? writevalue : Regs[pos2];
 
 initial begin
-	for (i = 0; i<32; i=i+1) begin
-		Regs[i] = 10*i; //initialize registers--just so they aren�t don�t cares
+    Regs[0] = 0;
+    Regs[1] =100;
+	for (i = 2; i<32; i=i+1) begin
+		Regs[i] = 10*i;
 	end
 end
 

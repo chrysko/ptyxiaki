@@ -1,0 +1,2 @@
+iverilog.exe -o testmips ALU.v Alucontroller.v testmips.v mips.v mux2x1.v mux2x1_5bit.v muxInA.v muxInB.v muxPC.v DMem.v RegistersFile.v forwardUnit.v
+

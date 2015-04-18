@@ -8,7 +8,6 @@ wire test41 = (op==mips.ALUop && fa==2'b00);
 wire test42 = (op==mips.ALUop && fa==2'b01);
 wire test43 = (op==mips.ALUop && fa==2'b10);
 
-
 wire [31:0]case1 = (test1) ? mips.IDEXA : 0;
 wire [31:0]case2 = (test2) ? mips.EXMEMALUOut : 0;
 wire [31:0]case3 = (test3) ? mips.IDEXIR[25:0]<<2 : 0;
