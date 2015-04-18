@@ -63,10 +63,10 @@ mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
  //Write Back Phase
 RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21],IFIDIR[20:16]);
-mux2x1_5bit wbmux(MEMWBrd, MEMWBIR[15:11], MEMWBOut,MEMWBop);
+mux2x1_5bit wbmux(MEMWBrd, MEMWBIR[20:16], MEMWBOut,MEMWBop);
  
 initial begin 
-    $readmemh("imem_testforward_book.v", IMemory); 
+    $readmemh("imem_testinterlock_book.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -104,7 +104,7 @@ always @ (posedge clock) begin
            	   end
        endcase
      end 
-     $display (faout,fbout);
+     //$display (faout,fbout);
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
 	 EXMEMB  <= IDEXB; //pass along the IR & B register

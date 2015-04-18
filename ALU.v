@@ -10,7 +10,7 @@ wire [31:0]case5 = (op==5) ? (in1-in2)>>32 : 0;
 assign out = case0 | case1 | case2 | case3 | case4 | case5;
 
 always @ (posedge clock) begin
-	$display ("alu: ",op, "in1: ",in1, "in2: ",in2, "test1: ",mips.regOut1);
+	//$display ("alu: ",op, "in1: ",in1, "in2: ",in2, "test1: ",mips.regOut1);
 end
 
 

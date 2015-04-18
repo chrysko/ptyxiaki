@@ -9,14 +9,17 @@ assign readvalue2 = (pos2 == 5'b0)? 32'h0:
 
 initial begin
     Regs[0] = 0;
-    Regs[1] =100;
+    Regs[1] = 0;
 	for (i = 2; i<32; i=i+1) begin
 		Regs[i] = 10*i;
 	end
+	Regs[5] = 54;
+	Regs[6] = 56;
 end
 
 
 always @ (posedge clock) begin
+   // $display("Write at ",pos, " value: ",writevalue);
     Regs[pos] <= writevalue; 
 end
 
