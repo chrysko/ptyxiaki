@@ -49,7 +49,7 @@ assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2);
 assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
 
 //gia thn ALU
-forwardUnit myforwardUnit(IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
+forwardUnit myforwardUnit(IDEXop, IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
 
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
 muxInA myinA(IDEXop,IDEXIR[5:0],faout, FA);
