@@ -14,7 +14,8 @@ integer out;
  wire [31:0] regOut1;
  wire [31:0] regOut2;
  wire [31:0] EXMEMOut;
- wire [4:0]  MEMWBOut;
+ reg [4:0]  MEMWBOut;
+ wire [4:0] muxREGout;
  wire [31:0] ALUOut;
  wire [31:0] muxaluout;
  wire brbit;
@@ -48,7 +49,7 @@ assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2);
 assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
 
 //gia thn ALU
-forwardUnit myforwardUnit(IDEXrs,IDEXrt,EXMEMrd,MEMWBrd,faout,fbout);
+forwardUnit myforwardUnit(IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
 
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
 muxInA myinA(IDEXop,IDEXIR[5:0],faout, FA);
@@ -63,10 +64,10 @@ mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
  //Write Back Phase
 RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21],IFIDIR[20:16]);
-mux2x1_5bit wbmux(MEMWBrd, MEMWBIR[20:16], MEMWBOut,MEMWBop);
+mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_testinterlock_book.v", IMemory); 
+    $readmemh("imem_testforward_book.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -111,6 +112,8 @@ always @ (posedge clock) begin
    end else begin
      EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
    end
+   
+    MEMWBOut <= muxREGout;
  end
  
 //Mem Stage
