@@ -10,7 +10,7 @@ module testmips;
 	
     always
     begin
-        if (cnt <150) 
+        if (cnt <20) 
 	       #50 clk <= ~clk;
 	    else begin
 	       $display("Finalize");

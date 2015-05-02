@@ -61,7 +61,7 @@ ALU myalu(clock,ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //gia to memstage 
-MemForwardUnit mymemforwardunit(EXMEMop,muxREGout,MEMWBOut,flagmem);
+MemForwardUnit mymemforwardunit(EXMEMop,EXMEMIR[20:16],MEMWBOut,flagmem);
 DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut,MEMStageOut);
 MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue, finalmemOut);
 mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
@@ -71,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem.v", IMemory); 
+    $readmemh("imem_testforward_book2.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
