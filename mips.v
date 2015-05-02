@@ -24,6 +24,8 @@ integer out;
  wire [2:0] ctrlout;
  wire [1:0] faout;
  wire [1:0] fbout;
+ wire flagmem;
+ wire [31:0]finalmemOut;
  // declare the bypass signals 
  wire takebranch, stall, bypassAfromMEM, bypassAfromALUinWB,bypassBfromMEM, bypassBfromALUinWB, bypassAfromLWinWB, bypassBfromLWinWB; 
 
@@ -59,7 +61,9 @@ ALU myalu(clock,ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //gia to memstage 
-DMem Memory(clock, EXMEMop, EXMEMALUOut,EXMEMB,MEMStageOut);
+MemForwardUnit mymemforwardunit(EXMEMop,muxREGout,MEMWBOut,flagmem);
+DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut,MEMStageOut);
+MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue, finalmemOut);
 mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
  //Write Back Phase
@@ -67,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_testforward_book.v", IMemory); 
+    $readmemh("imem.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
