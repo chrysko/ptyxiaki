@@ -24,6 +24,8 @@ integer out;
  wire [2:0] ctrlout;
  wire [1:0] faout;
  wire [1:0] fbout;
+ wire [1:0] bfaout;
+ wire [1:0] bfbout;
  wire flagmem;
  wire [31:0]finalmemOut;
  // declare the bypass signals 
@@ -45,13 +47,17 @@ assign stall = (MEMWBIR[31:26]==LW) && // source instruction is a load
                 ((IDEXop==ALUop) && ((IDEXrs==MEMWBrd)|(IDEXrt==MEMWBrd)))); // ALU use
  
  // Signal for a taken branch: instruction is BEQ and registers are equal
-assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2); 
- 
+//assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2); 
+
+BranchForwardUnit mybrancForwardUnit(IFIDIR[31:26], IFIDIR[25:21], IFIDIR[20:16],muxREGout,MEMWBOut, bfaout, bfbout); 
+
+
  //MemStage  memst(clock,EXMEMop);
 assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
 
 //gia thn ALU
 forwardUnit myforwardUnit(IDEXop, IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
+BranchPrediction mybranchdec(IFIDIR[31:26],bfaout,bfbout,takebranch); 
 
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
 muxInA myinA(IDEXop,IDEXIR[5:0],faout, FA);
@@ -62,7 +68,7 @@ muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //gia to memstage 
 MemForwardUnit mymemforwardunit(EXMEMop,EXMEMIR[20:16],MEMWBOut,flagmem);
-DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut,MEMStageOut);
+DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut, MEMStageOut);
 MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue, finalmemOut);
 mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
@@ -71,7 +77,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_testforward_book2.v", IMemory); 
+    $readmemh("imem_testforward_book3branch.v", IMemory); 
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -81,7 +87,7 @@ initial begin
  
 always @ (posedge clock) begin 
   if (~stall) begin // the ? rst three pipeline stages stall if there is a load hazard
-     
+     $display("TAKEBRANCH: ",takebranch);
      if (~takebranch) begin // ? rst instruction in the pipeline is being fetched normally
          IFIDIR <= IMemory[PC>>2];
          PC <= muxpcout; //PC + 4;
