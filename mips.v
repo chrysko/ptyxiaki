@@ -39,20 +39,12 @@ integer out;
  assign EXMEMop = EXMEMIR[31:26]; 
  assign MEMWBop = MEMWBIR[31:26];
  assign IDEXop = IDEXIR[31:26];
+
  
-										
-// The signal for detecting a stall based on the use of a result from LW
-assign stall = (MEMWBIR[31:26]==LW) && // source instruction is a load
-                ((((IDEXop==LW)|(IDEXop==SW)) && (IDEXrs==MEMWBrd)) | // stall for address calc
-                ((IDEXop==ALUop) && ((IDEXrs==MEMWBrd)|(IDEXrt==MEMWBrd)))); // ALU use
- 
- // Signal for a taken branch: instruction is BEQ and registers are equal
-//assign takebranch = (IFIDIR[31:26]==BEQ) && (regOut1==regOut2); 
+InterlockUnit myinterlock(IDEXIR[31:26], IFIDIR[31:26], IFIDIR[25:21], IFIDIR[20:16], IDEXrt,mips.EXMEMIR[20:16], stall);
 
 BranchForwardUnit mybrancForwardUnit(IFIDIR[31:26], IFIDIR[25:21], IFIDIR[20:16],muxREGout,MEMWBOut, bfaout, bfbout); 
 
-
- //MemStage  memst(clock,EXMEMop);
 assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
 
 //gia thn ALU
@@ -77,7 +69,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_testforward_book3branch.v", IMemory); 
+    $readmemh("imem_testinterlock_book2.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -86,14 +78,14 @@ initial begin
  end
  
 always @ (posedge clock) begin 
+   
   if (~stall) begin // the ? rst three pipeline stages stall if there is a load hazard
-     $display("TAKEBRANCH: ",takebranch);
      if (~takebranch) begin // ? rst instruction in the pipeline is being fetched normally
          IFIDIR <= IMemory[PC>>2];
          PC <= muxpcout; //PC + 4;
      end else begin // a taken branch is in ID; instruction in IF is wrong; insert a no-op and reset the PC
          IFIDIR <= noop; 
-         PC <= PC + 4 + ({{16{IFIDIR[15]}}, IFIDIR[15:0]}<<2); 
+         PC <= PC + ({{16{IFIDIR[15]}}, IFIDIR[15:0]}<<2); 
      end 
      // second instruction is in register fetch 
 	 IDEXA <= regOut1;
@@ -115,13 +107,17 @@ always @ (posedge clock) begin
            	   end
        endcase
      end 
-     //$display (faout,fbout);
+    // $display (faout,fbout);
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
 	 EXMEMB  <= IDEXB; //pass along the IR & B register
    end else begin
-     EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
-   end
+     $display("INTERLOCK ");
+     //EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
+     IFIDIR<=noop;
+     PC <=PC-4;
+     //IDEXIR<=noop;
+   end 
    
     MEMWBOut <= muxREGout;
  end

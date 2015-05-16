@@ -19,7 +19,7 @@ end
 
 
 always @ (posedge clock) begin
-    //$display("Write at ",pos, " value: ",writevalue);
+    //$display("Write:",pos, " :",writevalue, "READ1: ", pos1, " :", Regs[pos1], "READ2: ",pos2," :",Regs[pos2]);
     Regs[pos] <= writevalue; 
 end
 

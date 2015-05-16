@@ -7,10 +7,15 @@ assign faout = hazardexA ? 2'b10 :
             (hazardmemA)? 2'b01 : 00;
 
 //o B mporei na kanei forward mono gia tis alu entoles (R-type)
-wire hazardexB = (op==mips.ALUop && exmemrd!=0 &&  exmemrd==idexrt);
-wire hazardmemB = (op==mips.ALUop && memwbrd!=0 && memwbrd==idexrt);
+//wire hazardexB =  (op==mips.ALUop && exmemrd!=0 &&  exmemrd==idexrt);
+wire hazardexB =  (exmemrd!=0 &&  exmemrd==idexrt);
+//wire hazardmemB = (op==mips.ALUop && memwbrd!=0 && memwbrd==idexrt);
+wire hazardmemB = (memwbrd!=0 && memwbrd==idexrt);
 
 assign fbout = hazardexB ? 2'b10 :
             (hazardmemB)? 2'b01 : 00;
 
+always @ (posedge mips.clock) begin 
+    //$display("OP :", op, " FA: ",faout, "  FB: ",fbout);
+end
 endmodule

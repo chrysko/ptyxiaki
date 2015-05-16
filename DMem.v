@@ -9,7 +9,7 @@ end
 
 always @ (posedge clock) begin 
     if( op==mips.LW) begin
-        //$display ("pos: ",address>>2, "  load : ",DMemory[address>>2]);
+        $display ("pos: ",address>>2, "  load : ",DMemory[address>>2]);
     end else if (op == mips.SW) begin
         $display ("pos: ",address>>2, "  store: ",writevalue);
   		DMemory[address>>2] <= writevalue;
