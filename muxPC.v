@@ -6,4 +6,10 @@ wire [31:0]case4 = (op!=mips.Jop && op!=mips.JALop && (op!=mips.ALUop || mips.ID
 
 assign out = case1 | case3 | case4;
 
+//always @ (posedge mips.clock) begin
+    //if(op==mips.Jop) begin 
+    //    $display("op: ", op, "in: ",in1);
+    //end
+//end
+
 endmodule

@@ -64,12 +64,12 @@ DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut, MEMStageOut);
 MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue, finalmemOut);
 mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
- //Write Back Phase
+ //Write Back stage
 RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21],IFIDIR[20:16]);
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_test1.v", IMemory);
+    $readmemh("test_mem.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -78,7 +78,7 @@ initial begin
  end
  
 always @ (posedge clock) begin 
-   
+  //$display("PC:",PC);
   if (~stall) begin // the ? rst three pipeline stages stall if there is a load hazard
      if (~takebranch) begin // ? rst instruction in the pipeline is being fetched normally
          IFIDIR <= IMemory[PC>>2];
@@ -107,7 +107,6 @@ always @ (posedge clock) begin
            	   end
        endcase
      end 
-    // $display (faout,fbout);
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
      EXMEMB  <= IDEXB; //pass along the IR & B register
@@ -126,7 +125,7 @@ always @ (negedge clock) begin
 	if (EXMEMop==ALUop | EXMEMop == ADD_IMM) begin
 		$display(EXMEMALUOut);
 	end else begin
-	    $display("xxx: ", EXMEMALUOut);
+	    //$display("xxx: ", EXMEMALUOut);
 	end
 	MEMWBValue <= EXMEMOut;
     	MEMWBOut <= muxREGout;
