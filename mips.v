@@ -6,6 +6,7 @@ integer out;
  reg [31:0] PC, IMemory[0:1023], // separate memories
              IFIDIR, IDEXA, IDEXB, IDEXIR, EXMEMIR, EXMEMB, // pipeline registers
              EXMEMALUOut, MEMWBValue, MEMWBIR; // pipeline registers
+ reg [31:0] MEMWBValueAfter;
  wire [4:0]  IDEXrs, IDEXrt, EXMEMrd, MEMWBrd; //hold register ? elds
  wire [5:0]  EXMEMop, MEMWBop, IDEXop; // Hold opcodes
  wire [31:0] Ain, Bin;
@@ -15,6 +16,7 @@ integer out;
  wire [31:0] regOut2;
  wire [31:0] EXMEMOut;
  reg [4:0]  MEMWBOut;
+ reg [4:0] MEMWBOutAFTER;
  wire [4:0] muxREGout;
  wire [31:0] ALUOut;
  wire [31:0] muxaluout;
@@ -26,7 +28,7 @@ integer out;
  wire [1:0] fbout;
  wire [1:0] bfaout;
  wire [1:0] bfbout;
- wire flagmem;
+ wire [1:0]flagmem;
  wire [31:0]finalmemOut;
  // declare the bypass signals 
  wire takebranch, stall, bypassAfromMEM, bypassAfromALUinWB,bypassBfromMEM, bypassBfromALUinWB, bypassAfromLWinWB, bypassBfromLWinWB; 
@@ -59,9 +61,9 @@ ALU myalu(clock,ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //gia to memstage 
-MemForwardUnit mymemforwardunit(EXMEMop,EXMEMIR[20:16],MEMWBOut,flagmem);
+MemForwardUnit mymemforwardunit(EXMEMop,EXMEMIR[20:16],MEMWBOut,MEMWBOutAFTER,flagmem);
 DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut, MEMStageOut);
-MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue, finalmemOut);
+MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue,MEMWBValueAfter, finalmemOut);
 mux2x1 testmux(MEMStageOut, EXMEMALUOut,EXMEMOut, MEMStageFlag);
  
  //Write Back stage
@@ -69,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("test_mem.v", IMemory);
+    $readmemh("imem_test1.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -121,19 +123,21 @@ always @ (posedge clock) begin
  end
  
 //Mem Stage
-always @ (negedge clock) begin
+always @ (posedge clock) begin
 	if (EXMEMop==ALUop | EXMEMop == ADD_IMM) begin
 		$display(EXMEMALUOut);
 	end else begin
 	    //$display("xxx: ", EXMEMALUOut);
 	end
 	MEMWBValue <= EXMEMOut;
-    	MEMWBOut <= muxREGout;
+    MEMWBOut <= muxREGout;
 end
 
 //Write Back Stage
 always @(posedge clock) begin 
     MEMWBIR <= EXMEMIR; //pass along IR
+    MEMWBOutAFTER <=MEMWBOut;
+    MEMWBValueAfter <= MEMWBValue;
 end
  
 endmodule

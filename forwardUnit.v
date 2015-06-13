@@ -17,7 +17,7 @@ assign fbout = hazardexB ? 2'b10 :
 
 always @ (posedge mips.clock) begin 
     if(faout>0 || fbout>0) begin
-        $display("OP :", op, " FA: ",faout, "  FB: ",fbout);
+       // $display("OP :", op, " FA: ",faout, "  FB: ",fbout);
     end
 end
 endmodule
