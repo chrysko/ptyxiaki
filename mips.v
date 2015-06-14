@@ -71,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_test1.v", IMemory);
+    $readmemh("imem_test2.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -94,6 +94,7 @@ always @ (posedge clock) begin
 	 IDEXB <= regOut2;
      
 	  // third instruction is doing address calculation or ALU operation
+	 //$display( faout, fbout);
      IDEXIR <= IFIDIR; //pass along IR
      if (IDEXop==Jop) begin
      	IFIDIR <=noop;
@@ -104,7 +105,7 @@ always @ (posedge clock) begin
      end else if (IDEXop==ALUop) begin
         case (IDEXIR[5:0]) 
            8:  begin 
-           		IFIDIR <=noop; 
+           		IFIDIR <=noop;
            		IDEXIR <=noop;
            	   end
        endcase
@@ -125,7 +126,7 @@ always @ (posedge clock) begin
 //Mem Stage
 always @ (posedge clock) begin
 	if (EXMEMop==ALUop | EXMEMop == ADD_IMM) begin
-		$display(EXMEMALUOut);
+		//$display(EXMEMALUOut);
 	end else begin
 	    //$display("xxx: ", EXMEMALUOut);
 	end

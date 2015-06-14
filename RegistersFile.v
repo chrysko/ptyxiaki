@@ -14,13 +14,12 @@ initial begin
 	for (i = 2; i<32; i=i+1) begin
 		Regs[i] = 0;//10*i;
 	end
-	Regs[5] = 54;
 	//Regs[6] = 56;
 end
 
 
 always @ (posedge clock) begin
-    //$display("Write:",pos, " :",writevalue, "READ1: ", pos1, " :", Regs[pos1], "READ2: ",pos2," :",Regs[pos2]);
+    //$display("Write:",pos, ":",writevalue, "  READ1: ", pos1, ":", Regs[pos1], "  READ2: ",pos2," :",Regs[pos2]);
     Regs[pos] <= writevalue; 
 end
 

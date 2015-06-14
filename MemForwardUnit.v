@@ -8,7 +8,7 @@ assign memout = (hazardWB)? 1 :
                 (hazardWTF)? 2 : 0;
 
 always @ (posedge mips.clock) begin 
-    if(op==mips.SW) begin    
+    if(op==mips.SW || op==mips.LW) begin    
         //$display("OP:", op, "Test: ",exmemrd, " TEST2: ", memwbrd, " AFTER: ",after);
     end
 end

@@ -7,7 +7,7 @@ wire test12 = (op==mips.LW && fb==2'b01);
 wire test13 = (op==mips.LW && fb==2'b10);
 wire test2 = (op==mips.Jop);
 wire test3 = (op==mips.JALop);
-wire test41 = ((op==mips.ALUop || op==mips.LW) && fb==2'b00);
+wire test41 = ((op==mips.ALUop) && fb==2'b00);
 wire test42 = ((op==mips.ALUop || op==mips.LW) && fb==2'b01);
 wire test43 = ((op==mips.ALUop || op==mips.LW) && fb==2'b10);
 
