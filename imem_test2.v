@@ -1,5 +1,5 @@
 00000000
-00000000
+20000024    //apla gia na elegxw oti den epireazetai o kataxwrhths 0
 8c880000
 20840004
 00004820
