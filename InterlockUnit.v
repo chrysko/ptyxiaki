@@ -5,13 +5,14 @@ module InterlockUnit(input [5:0]op, input [5:0]ifop, input [4:0] ifidrs,
 assign notstall = (ifop==mips.ADD_IMM || ifop==mips.Jop || ifop==mips.JALop);
 
 assign stallout = ((op == mips.LW) && (idexrt==ifidrs || idexrt==ifidrt)) ||
-                  ((ifop == mips.BEQ)&& mips.EXMEMop==mips.LW && (idexrt ==ifidrs || idexrt ==ifidrt)) ||
-                  ((ifop == mips.BEQ)&& mips.EXMEMop==mips.LW && (exmemrt==ifidrs || exmemrt==ifidrt)) ;
+                  ((ifop == mips.BEQ) && mips.EXMEMop==mips.LW && (idexrt ==ifidrs || idexrt ==ifidrt)) ||
+                  ((ifop == mips.BEQ) &&  op==mips.ALUop && (mips.IDEXIR[15:11]!=0) && (mips.IDEXIR[15:11] ==ifidrs || mips.IDEXIR[15:11] ==ifidrt)) ||
+                  ((ifop == mips.BEQ) && mips.EXMEMop==mips.LW && (exmemrt==ifidrs || exmemrt==ifidrt)) ;
 
 
 
 always @ (posedge mips.clock) begin 
-   //$display("ifop: ",ifop,"|0. ",op," |1. ",mips.EXMEMIR[20:16], " |2. ",ifidrs, " 3.",ifidrt, "4. ",idexrt);
+   //$display("ifop: ",ifop,"|0. ",op," |1. ",exmemrt, " |2. ",ifidrs, " 3.",ifidrt, "4. ",idexrt);
 end
 
 endmodule

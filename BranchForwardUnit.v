@@ -13,7 +13,10 @@ assign branchbout = hazardexB ? 2'b10 :
             (hazardmemB)? 2'b01 : 00;
 
 always @ (posedge mips.clock) begin 
-    //$display("OP:", op, "Test: ",exmemrd, " TEST2: ", memwbrd);
+    //$display("OP:", op,  "Test: ",exmemrd, " TEST2: ", memwbrd, "A: ",idexrs, "B: ",idexrt);
+    if(branchaout>0 || branchbout>0) begin
+       //$display("OP :", op, " FA: ",branchaout, "  FB: ",branchbout, "A: ",idexrs);
+    end
 end
 
 endmodule

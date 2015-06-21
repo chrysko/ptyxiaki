@@ -71,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_test3.v", IMemory);
+    $readmemh("imem_test4.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
@@ -113,20 +113,20 @@ always @ (posedge clock) begin
 	 EXMEMALUOut <= ALUOut; //pairnei thn timi apo ton kataxwriti
      EXMEMIR <= IDEXIR;
      EXMEMB  <= IDEXB; //pass along the IR & B register
-   end else begin
+  end else begin
      $display("INTERLOCK ");
      //EXMEMIR <= noop; //Freeze ? rst three stages of pipeline; inject a nop into the EX output
      IFIDIR<=noop;
      PC <=PC-4;
      //IDEXIR<=noop;
-   end 
+  end 
    
  end
  
 //Mem Stage
 always @ (posedge clock) begin
 	if (EXMEMop==ALUop | EXMEMop == ADD_IMM) begin
-		//$display(EXMEMALUOut);
+		$display(EXMEMALUOut);
 	end else begin
 	    //$display("xxx: ", EXMEMALUOut);
 	end
