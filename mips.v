@@ -71,7 +71,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_test4.v", IMemory);
+    $readmemh("imem_simple3.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;

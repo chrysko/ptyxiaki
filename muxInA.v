@@ -1,10 +1,10 @@
 module muxInA(input [5:0]op, input [5:0]aop, input [1:0]fa, output [31:0]out);
 
 
-wire test1 = (op==mips.SW) | (op == mips.ADD_IMM);
-wire test11 = (op==mips.LW && fa==2'b00);
-wire test12 = (op==mips.LW && fa==2'b01);
-wire test13 = (op==mips.LW && fa==2'b10);
+wire test1 = (op==mips.SW);
+wire test11 =((op==mips.LW || op == mips.ADD_IMM) && fa==2'b00);
+wire test12 =((op==mips.LW || op == mips.ADD_IMM) && fa==2'b01);
+wire test13 =((op==mips.LW || op == mips.ADD_IMM) && fa==2'b10);
 wire test2 = (op==mips.Jop);
 wire test3 = (op==mips.JALop);
 wire test41 = ((op==mips.ALUop || op==mips.LW) && fa==2'b00);

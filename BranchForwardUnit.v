@@ -14,8 +14,8 @@ assign branchbout = hazardexB ? 2'b10 :
 
 always @ (posedge mips.clock) begin 
     //$display("OP:", op,  "Test: ",exmemrd, " TEST2: ", memwbrd, "A: ",idexrs, "B: ",idexrt);
-    if(branchaout>0 || branchbout>0) begin
-       //$display("OP :", op, " FA: ",branchaout, "  FB: ",branchbout, "A: ",idexrs);
+    if(op==mips.BEQ && (branchaout>0 || branchbout>0)) begin
+       //$display("OP :", op, " FA: ",branchaout, "  FB: ",branchbout, "A: ",idexrs, " B: ", idexrt);
     end
 end
 

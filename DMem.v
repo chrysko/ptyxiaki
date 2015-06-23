@@ -4,7 +4,7 @@ reg [31:0]DMemory[0:1023];
 assign readvalue = DMemory[address>>2];
 
 initial begin
-    $readmemh("data_test4.v", DMemory); 
+    $readmemh("data_simple3.v", DMemory); 
 end
 
 always @ (posedge clock) begin 
