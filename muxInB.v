@@ -1,4 +1,4 @@
-module muxInB(input [5:0]op, input [5:0]aop, input [1:0]fb,  output [31:0]out);
+module muxInB(input [5:0]op, input [1:0]fb,  output [31:0]out);
 
 
 wire test1 = (op==mips.SW) | (op == mips.ADD_IMM);

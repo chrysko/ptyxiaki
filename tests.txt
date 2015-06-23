@@ -3,3 +3,7 @@ test1		search table for a specific number
 test2		sorting
 test3 		merge sorted tables with different size
 test4		division implemented with substractions
+
+simple1
+simple2
+simple3

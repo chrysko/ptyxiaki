@@ -54,8 +54,8 @@ forwardUnit myforwardUnit(IDEXop, IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
 BranchPrediction mybranchdec(IFIDIR[31:26],bfaout,bfbout,takebranch); 
 
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
-muxInA myinA(IDEXop,IDEXIR[5:0],faout, FA);
-muxInB myinB(IDEXop,IDEXIR[5:0],fbout, FB);
+muxInA myinA(IDEXop,faout, FA);
+muxInB myinB(IDEXop,fbout, FB);
 
 ALU myalu(clock,ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
