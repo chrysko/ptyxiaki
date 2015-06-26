@@ -20,18 +20,11 @@ integer out;
  wire [4:0] muxREGout;
  wire [31:0] ALUOut;
  wire [31:0] muxaluout;
- wire brbit;
- wire [31:0] case1in;
  wire [31:0] muxpcout;
  wire [2:0] ctrlout;
- wire [1:0] faout;
- wire [1:0] fbout;
- wire [1:0] bfaout;
- wire [1:0] bfbout;
- wire [1:0]flagmem;
+ wire [1:0] faout, fbout, bfaout, bfbout, flagmem;
  wire [31:0]finalmemOut;
- // declare the bypass signals 
- wire takebranch, stall, bypassAfromMEM, bypassAfromALUinWB,bypassBfromMEM, bypassBfromALUinWB, bypassAfromLWinWB, bypassBfromLWinWB; 
+ wire takebranch, stall; 
 
  assign IDEXrs = IDEXIR[25:21];
  assign IDEXrt = IDEXIR[20:16];
@@ -42,17 +35,18 @@ integer out;
  assign MEMWBop = MEMWBIR[31:26];
  assign IDEXop = IDEXIR[31:26];
 
- 
+ assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
+
+//Interlock 
 InterlockUnit myinterlock(IDEXIR[31:26], IFIDIR[31:26], IFIDIR[25:21], IFIDIR[20:16], IDEXrt,mips.EXMEMIR[20:16], stall);
 
+//Forward - Decode
 BranchForwardUnit mybrancForwardUnit(IFIDIR[31:26], IFIDIR[25:21], IFIDIR[20:16],muxREGout,MEMWBOut, bfaout, bfbout); 
-
-assign MEMStageFlag = (EXMEMop==LW || EXMEMop==SW)? 0 : 1;
-
-//gia thn ALU
-forwardUnit myforwardUnit(IDEXop, IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
 BranchPrediction mybranchdec(IFIDIR[31:26],bfaout,bfbout,takebranch); 
 
+//gia thn ALU
+//Forward - Execute
+forwardUnit myforwardUnit(IDEXop, IDEXrs,IDEXrt,muxREGout,MEMWBOut,faout,fbout);
 Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
 muxInA myinA(IDEXop,faout, FA);
 muxInB myinB(IDEXop,fbout, FB);
@@ -60,7 +54,8 @@ muxInB myinB(IDEXop,fbout, FB);
 ALU myalu(clock,ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
-//gia to memstage 
+//MemStage 
+//Forward - Memory
 MemForwardUnit mymemforwardunit(EXMEMop,EXMEMIR[20:16],MEMWBOut,MEMWBOutAFTER,flagmem);
 DMem Memory(clock, EXMEMop, EXMEMALUOut,finalmemOut, MEMStageOut);
 MemInputMux mymemmux(flagmem, EXMEMB, MEMWBValue,MEMWBValueAfter, finalmemOut);
