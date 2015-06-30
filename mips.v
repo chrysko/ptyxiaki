@@ -51,7 +51,7 @@ Alucontroller myaluctrl(IDEXop,IDEXIR[5:0],ctrlout);
 muxInA myinA(IDEXop,faout, FA);
 muxInB myinB(IDEXop,fbout, FB);
 
-ALU myalu(clock,ctrlout,FA,FB,ALUOut);
+ALU myalu(ctrlout,FA,FB,ALUOut);
 muxPC  mypcmux( IDEXIR[25:0], FA<<2, PC, IDEXop, muxpcout);
 
 //MemStage 
@@ -66,7 +66,7 @@ RegistersFile myregs(clock, MEMWBValue, regOut1, regOut2, MEMWBOut,IFIDIR[25:21]
 mux2x1_5bit wbmux(EXMEMrd, EXMEMIR[20:16], muxREGout,EXMEMop);
  
 initial begin 
-    $readmemh("imem_testinterlock_book.v", IMemory);
+    $readmemh("imem_simple3.v", IMemory);
     PC = 0; 
     IFIDIR = noop;
 	IDEXIR = noop;
